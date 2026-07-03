@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  DISPATCHER
+  DRIVER
+}
+
+enum DriverStatus {
+  OFFLINE
+  ON_DUTY
+  ON_TRIP
+}
+
+enum TripStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum SosStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  phone        String        @unique
+  passwordHash String
+  role         UserRole
+  createdAt    DateTime      @default(now())
+
+  driverProfile DriverProfile?
+  duties        Duty[]
+  trips         Trip[]
+  locationPings  LocationPing[]
+  sosAlerts     SosAlert[]
+  accessLogs    AccessLog[]   @relation("AccessLogActor")
+}
+
+model Vehicle {
+  id         String  @id @default(cuid())
+  plate      String  @unique
+  label      String
+  createdAt  DateTime @default(now())
+
+  driverProfiles DriverProfile[]
+  trips          Trip[]
+}
+
+model DriverProfile {
+  userId          String   @id
+  currentVehicleId String?
+  status          DriverStatus @default(OFFLINE)
+  batteryLevel    Int?
+  networkStatus   String?
+  lastLat         Float?
+  lastLng         Float?
+  lastSpeed       Float?
+  lastHeading     Float?
+  lastSeenAt      DateTime?
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentVehicle  Vehicle? @relation(fields: [currentVehicleId], references: [id], onDelete: SetNull)
+}
+
+model Duty {
+  id        String   @id @default(cuid())
+  driverId  String
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+
+  driver User @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  trips Trip[]
+
+  @@index([driverId, startedAt])
+}
+
+model Trip {
+  id        String     @id @default(cuid())
+  driverId  String
+  dutyId    String?
+  vehicleId String?
+  startedAt DateTime   @default(now())
+  endedAt   DateTime?
+  status    TripStatus @default(ACTIVE)
+
+  driver  User    @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  duty    Duty?   @relation(fields: [dutyId], references: [id], onDelete: SetNull)
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  locationPings LocationPing[]
+
+  @@index([driverId, startedAt])
+  @@index([status])
+}
+
+model LocationPing {
+  id           String   @id @default(cuid())
+  driverId     String
+  tripId       String?
+  lat          Float
+  lng          Float
+  speed        Float?
+  heading      Float?
+  batteryLevel Int?
+  networkStatus String?
+  recordedAt   DateTime @default(now())
+
+  driver User @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  trip   Trip? @relation(fields: [tripId], references: [id], onDelete: SetNull)
+
+  @@index([driverId, recordedAt])
+  @@index([tripId, recordedAt])
+}
+
+model SosAlert {
+  id         String    @id @default(cuid())
+  driverId   String
+  lat        Float?
+  lng        Float?
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+  status     SosStatus @default(OPEN)
+
+  driver User @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+}
+
+model AccessLog {
+  id             String   @id @default(cuid())
+  actorId        String
+  action         String
+  targetDriverId String?
+  createdAt      DateTime @default(now())
+
+  actor User @relation("AccessLogActor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId, createdAt])
+}

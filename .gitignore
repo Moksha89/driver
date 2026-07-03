@@ -1,0 +1,17 @@
+node_modules
+dist
+build
+.next
+.vite
+**/node_modules
+**/dist
+**/build
+**/.next
+**/.vite
+**/*.tsbuildinfo
+.env
+.env.local
+**/.env
+**/.env.local
+*.log
+.DS_Store
