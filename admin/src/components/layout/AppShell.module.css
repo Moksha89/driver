@@ -1,0 +1,102 @@
+.shell {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  min-height: 100vh;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  border-right: 1px solid #1e293b;
+  background: #111827;
+}
+
+.brand {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.link,
+.activeLink {
+  padding: 12px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #cbd5e1;
+}
+
+.activeLink {
+  background: #1e293b;
+  color: #fff;
+}
+
+.userBox {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #0f172a;
+}
+
+.userName {
+  font-weight: 600;
+}
+
+.userMeta {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.logoutButton {
+  margin-top: 10px;
+  border: 1px solid #334155;
+  background: transparent;
+  color: #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.banner {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid #1e293b;
+  }
+}
